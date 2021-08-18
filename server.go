@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	config.SetIntialEnv()
+	config.SetInitialEnv()
 
 	// Connect to the database
 	db := config.SetupDatabaseConnection()
