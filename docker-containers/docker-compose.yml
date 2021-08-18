@@ -1,0 +1,35 @@
+version: '3'
+services:
+  postgres:
+    image: postgres:alpine
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: themuzix
+    volumes:
+      - themuzix-golang-rest-api-postgres-data:/var/lib/postgresql/data
+    networks:
+      - themuzix-golang-rest-api-app-network
+
+  pgadmin:
+    image: dpage/pgadmin4
+    depends_on:
+      - postgres
+    ports:
+      - '8080:80'
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    volumes:
+      - themuzix-golang-rest-api-pgadmin:/root/.pgadmin
+    networks:
+      - themuzix-golang-rest-api-app-network
+
+volumes:
+  themuzix-golang-rest-api-postgres-data:
+  themuzix-golang-rest-api-pgadmin:
+networks:
+  themuzix-golang-rest-api-app-network:
+    driver: bridge
