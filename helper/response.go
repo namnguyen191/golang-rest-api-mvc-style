@@ -1,7 +1,7 @@
 package helper
 
 type Response struct {
-	Status  bool        `json:"status"`
+	Status  int         `json:"status"`
 	Message string      `json:"message"`
 	Errors  []error     `json:"errors"`
 	Data    interface{} `json:"data"`
@@ -10,7 +10,7 @@ type Response struct {
 type EmptyObj struct {
 }
 
-func BuildReponse(status bool, message string, errors []error, data interface{}) Response {
+func BuildReponse(status int, message string, errors []error, data interface{}) Response {
 	res := Response{
 		Status:  status,
 		Message: message,
