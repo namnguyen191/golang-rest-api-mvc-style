@@ -3,14 +3,14 @@ package helper
 type Response struct {
 	Status  int         `json:"status"`
 	Message string      `json:"message"`
-	Errors  []error     `json:"errors"`
+	Errors  []string    `json:"errors"`
 	Data    interface{} `json:"data"`
 }
 
 type EmptyObj struct {
 }
 
-func BuildReponse(status int, message string, errors []error, data interface{}) Response {
+func BuildResponse(status int, message string, errors []string, data interface{}) Response {
 	res := Response{
 		Status:  status,
 		Message: message,

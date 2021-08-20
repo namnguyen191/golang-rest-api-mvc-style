@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/namnguyen191/themuzix-golang-rest-api/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -30,6 +31,12 @@ func SetupDatabaseConnection() *gorm.DB {
 
 	if err != nil {
 		panic("fail to connect to db")
+	}
+
+	// Migrate DB model
+	err = db.AutoMigrate(&entity.Artist{}, &entity.Song{}, &entity.User{})
+	if err != nil {
+		panic("fail to auto migrate tables")
 	}
 
 	return db
