@@ -13,7 +13,9 @@ var (
 	db       *gorm.DB
 	userRepo repository.UserRepository
 	authCon  controller.AuthController
+	usrCon   controller.UserController
 	authSer  service.AuthService
+	usrSer   service.UserService
 	jwtSer   service.JWTService
 )
 
@@ -29,9 +31,11 @@ func main() {
 	// setup services
 	jwtSer = service.NewJWTService()
 	authSer = service.NewAuthService(userRepo)
+	usrSer = service.NewUserService(userRepo)
 
 	// setup controller
 	authCon = controller.NewAuthController(authSer, jwtSer)
+	usrCon = controller.NewUserController(usrSer, jwtSer)
 
 	r := gin.Default()
 
@@ -39,6 +43,12 @@ func main() {
 	{
 		authRoutes.POST("/login", authCon.Login)
 		authRoutes.POST("/register", authCon.Register)
+	}
+
+	usrRoutes := r.Group("api/user")
+	{
+		usrRoutes.GET("profile", usrCon.Profile)
+		usrRoutes.PUT("profile", usrCon.Update)
 	}
 
 	r.GET("/ping", func(c *gin.Context) {

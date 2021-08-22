@@ -27,7 +27,13 @@ func (c *userController) Update(context *gin.Context) {
 	var userUpdateDTO dto.UserUpdateDTO
 	errDTO := context.ShouldBind((&userUpdateDTO))
 	if errDTO != nil {
-		res := helper.BuildResponse(http.StatusBadRequest, "invalid request body", helper.ValidationErrorsToStringArray(errDTO.(validator.ValidationErrors)), nil)
+		errRes, ok := errDTO.(validator.ValidationErrors)
+		if !ok {
+			res := helper.BuildResponse(http.StatusBadRequest, "invalid request body", []string{errDTO.Error()}, nil)
+			context.AbortWithStatusJSON(http.StatusBadRequest, res)
+			return
+		}
+		res := helper.BuildResponse(http.StatusBadRequest, "invalid request body", helper.ValidationErrorsToStringArray(errRes), nil)
 		context.AbortWithStatusJSON(http.StatusBadRequest, res)
 		return
 	}
@@ -35,7 +41,9 @@ func (c *userController) Update(context *gin.Context) {
 	authHeader := context.GetHeader("Authorization")
 	token, errToken := c.jwtService.ValidateToken(authHeader)
 	if errToken != nil {
-		panic(errToken.Error())
+		res := helper.BuildResponse(http.StatusUnauthorized, "bad token", []string{errToken.Error()}, nil)
+		context.AbortWithStatusJSON(http.StatusUnauthorized, res)
+		return
 	}
 
 	claims := token.Claims.(jwt.MapClaims)
@@ -50,7 +58,18 @@ func (c *userController) Update(context *gin.Context) {
 }
 
 func (c *userController) Profile(context *gin.Context) {
-	panic("not implemented") // TODO: Implement
+	authHeader := context.GetHeader("Authorization")
+	token, err := c.jwtService.ValidateToken(authHeader)
+	if err != nil {
+		res := helper.BuildResponse(http.StatusUnauthorized, "bad token", []string{err.Error()}, nil)
+		context.AbortWithStatusJSON(http.StatusUnauthorized, res)
+		return
+	}
+
+	claims := token.Claims.(jwt.MapClaims)
+	user := c.userService.Profile(fmt.Sprintf("%v", claims["user_id"]))
+	res := helper.BuildResponse(http.StatusOK, "ok", nil, user)
+	context.JSON(http.StatusOK, res)
 }
 
 func NewUserController(userService service.UserService, jwtService service.JWTService) UserController {
